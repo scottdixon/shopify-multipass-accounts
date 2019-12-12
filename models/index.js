@@ -31,7 +31,9 @@ User.init(
     },
     password: {
       type: DataTypes.STRING
-    }
+    },
+    loginAttempts: DataTypes.INTEGER,
+    lastAttempt: DataTypes.DATE
   },
   {
     sequelize,
