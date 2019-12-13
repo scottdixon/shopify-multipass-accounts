@@ -5,8 +5,6 @@ const { Sequelize, Model, DataTypes } = require('sequelize')
 const bcrypt = require('bcrypt')
 const yn = require('yn')
 
-console.log(JSON.stringify(PASSWORD_MUST_CONTAIN_LOWER_CASE), JSON.stringify(true), JSON.stringify('true'))
-
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: 'database.sqlite'
@@ -79,6 +77,4 @@ User.beforeCreate(async (user, options) => {
   user.password = await User.generateHash(user.password)
 });
 
-sequelize.sync().then(() => console.log('Database ready'))
-
-module.exports = { User }
+module.exports = { sequelize, User }
