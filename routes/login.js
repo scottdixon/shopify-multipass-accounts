@@ -7,17 +7,12 @@ const { LOCKOUT_ATTEMPS, LOCKOUT_DURATION_MINUTES } = process.env
 router.post('/login', async (req, res) => {
   const now = new Date
   const { email, password } = req.body.customer
-  let user
 
   // Look up user
-  try {
-    user = await User.findOne({ where: { email }})
-    if (!user) {
-      console.log('User not found')
-      return redirect(res, 'login', 'incorrect email/password')
-    }
-  } catch (err) {
-    console.log(err)
+  const user = await User.findOne({ where: { email }})
+  if (!user) {
+    console.log('User not found')
+    return redirect(res, 'login', 'incorrect email/password')
   }
 
   // Are they locked out?
