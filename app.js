@@ -14,10 +14,9 @@ app.post('/register', async (req, res) => {
   try {
     const user = await User.create({ email, password })
     return res.redirect(user.generateMultipassUrl())
-  } catch (err) {
-    if (err.errors[0].type === 'unique violation') {
-      return res.redirect(`https://${SHOP}/account/register?message=account already exists`)
-    }
+  } catch (error) {
+    const { message } = error.errors[0]
+    return res.redirect(`https://${SHOP}/account/login?message=${message}`)
   }
 })
 

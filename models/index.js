@@ -1,8 +1,11 @@
 const Multipassify = require('multipassify');
-const { MULTIPASS_SECRET } = process.env
+const { MULTIPASS_SECRET, PASSWORD_MIN_LENGTH, PASSWORD_MUST_CONTAIN_LOWER_CASE, PASSWORD_MUST_CONTAIN_UPPER_CASE, PASSWORD_MUST_CONTAIN_NUMBERS, PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTERS } = process.env
 const multipassify = new Multipassify(MULTIPASS_SECRET)
 const { Sequelize, Model, DataTypes } = require('sequelize')
 const bcrypt = require('bcrypt')
+const yn = require('yn')
+
+console.log(JSON.stringify(PASSWORD_MUST_CONTAIN_LOWER_CASE), JSON.stringify(true), JSON.stringify('true'))
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -27,10 +30,35 @@ User.init(
   {
     email: {
       type: Sequelize.STRING,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: true
+      }
     },
     password: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      validate: {
+        minimumLength: (password) => {
+          if (PASSWORD_MIN_LENGTH && password.length < PASSWORD_MIN_LENGTH) {
+            throw new Error(`Minimum password length ${PASSWORD_MIN_LENGTH} characters`)
+          }
+        },
+        passwordComplexity: (password) => {
+          if (yn(PASSWORD_MUST_CONTAIN_LOWER_CASE) && !/(?=.*[a-z])/.test(password)) {
+            throw new Error(`Password must contain a lower case character`)
+
+          }
+          if (yn(PASSWORD_MUST_CONTAIN_UPPER_CASE) && !/(?=.*[A-Z])/.test(password)) {
+            throw new Error(`Password must contain an upper case character`)
+          }
+          if (yn(PASSWORD_MUST_CONTAIN_NUMBERS) && !/(?=.*[0-9])/.test(password)) {
+            throw new Error(`Password must contain a number`)
+          }
+          if (yn(PASSWORD_MUST_CONTAIN_SPECIAL_CHARACTERS) && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
+            throw new Error(`Password must contain a special character`)
+          }
+        }
+      }
     },
     loginAttempts: DataTypes.INTEGER,
     lastAttempt: DataTypes.DATE
